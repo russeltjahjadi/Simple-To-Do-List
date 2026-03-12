@@ -2,17 +2,19 @@
 
 A single-file, zero-dependency todo list web app. No build tools, no frameworks, no server required — just one `index.html` file.
 
+🔗 **Live Demo:** [simple-todo-list-workspace.netlify.app](https://simple-todo-list-workspace.netlify.app/)
+
 ---
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Markup | HTML5 |
-| Styling | CSS3 (custom properties, flexbox, animations) |
-| Logic | Vanilla JavaScript (ES6+) |
-| Fonts | Google Fonts (Fraunces + DM Sans) |
-| Persistence | Browser `localStorage` |
+| Layer       | Technology                                    |
+| ----------- | --------------------------------------------- |
+| Markup      | HTML5                                         |
+| Styling     | CSS3 (custom properties, flexbox, animations) |
+| Logic       | Vanilla JavaScript (ES6+)                     |
+| Fonts       | Google Fonts (Fraunces + DM Sans)             |
+| Persistence | Browser `localStorage`                        |
 
 ---
 
@@ -33,20 +35,22 @@ index.html
 ## How the CSS Works
 
 ### Design Tokens
+
 All colors are defined as CSS custom properties on `:root`, making the theme easy to change in one place:
 
 ```css
 :root {
-  --cream: #0F1117;   /* page background */
-  --ink: #E8E3DA;     /* primary text */
-  --accent: #7C6FCD;  /* purple highlight color */
-  --muted: #4E5363;   /* secondary text */
-  --line: #1E2130;    /* borders */
+  --cream: #0f1117; /* page background */
+  --ink: #e8e3da; /* primary text */
+  --accent: #7c6fcd; /* purple highlight color */
+  --muted: #4e5363; /* secondary text */
+  --line: #1e2130; /* borders */
   --done-bg: #141720; /* completed task background */
 }
 ```
 
 ### Visual Effects
+
 - **Grain texture** — a `body::before` pseudo-element overlays an SVG `feTurbulence` noise filter at low opacity to add subtle texture to the background.
 - **Blobs** — two fixed `<div>` elements with `border-radius: 50%` and `filter: blur(80px)` create the soft glowing background shapes.
 - **Animations** — `@keyframes fadeUp` staggers the page sections on load using `animation-delay`. Task cards use `@keyframes slideIn` when added, and a `.removing` class triggers a slide-out before the element is removed from the DOM.
@@ -56,15 +60,17 @@ All colors are defined as CSS custom properties on `:root`, making the theme eas
 ## How the JavaScript Works
 
 ### State
+
 The app holds two main pieces of state in memory:
 
 ```js
-let tasks = [];           // array of task objects
-let selectedCat = 'none'; // category chosen in the input
-let activeFilter = 'all'; // current filter tab
+let tasks = []; // array of task objects
+let selectedCat = "none"; // category chosen in the input
+let activeFilter = "all"; // current filter tab
 ```
 
 Each task is a plain object:
+
 ```js
 {
   id: "1710000000000",  // Date.now() as string — unique ID
@@ -76,20 +82,22 @@ Each task is a plain object:
 ```
 
 ### Persistence
+
 Tasks are saved to and loaded from `localStorage` as a JSON string:
 
 ```js
 function save() {
-  localStorage.setItem('tasky_tasks', JSON.stringify(tasks));
+  localStorage.setItem("tasky_tasks", JSON.stringify(tasks));
 }
 
 // On page load:
-let tasks = JSON.parse(localStorage.getItem('tasky_tasks') || '[]');
+let tasks = JSON.parse(localStorage.getItem("tasky_tasks") || "[]");
 ```
 
 This means tasks survive page refreshes and browser restarts, but are local to the device and browser.
 
 ### Rendering
+
 The app uses a single `render()` function that rebuilds the task list DOM from scratch every time state changes. It:
 
 1. Filters `tasks` based on `activeFilter` (all / active / done)
@@ -99,22 +107,32 @@ The app uses a single `render()` function that rebuilds the task list DOM from s
 5. Shows/hides the "Clear completed" button
 
 ### Adding a Task
+
 ```js
 function addTask() {
   const text = input.value.trim();
   if (!text) return;
-  tasks.unshift({ id: Date.now().toString(), text, done: false, cat: selectedCat, ts: Date.now() });
+  tasks.unshift({
+    id: Date.now().toString(),
+    text,
+    done: false,
+    cat: selectedCat,
+    ts: Date.now(),
+  });
   save();
   render();
 }
 ```
+
 New tasks are added to the **front** of the array with `unshift()` so they appear at the top of the list.
 
 ### Completing & Deleting
+
 - **Toggle** — flips `task.done` and calls `save()` + `render()`.
 - **Delete** — adds a `.removing` CSS class to animate the card out, then removes it from the array after 280ms to let the animation finish before the DOM update.
 
 ### Category Picker
+
 The category dropdown is a custom-built component (not a native `<select>`). It works by:
 
 1. Toggling an `.open` class on the dropdown `<div>` to show/hide it via `display: flex`
@@ -123,12 +141,16 @@ The category dropdown is a custom-built component (not a native `<select>`). It 
 4. Calling `setCat(cat)` which updates the trigger button's label, dot color, and CSS variable to reflect the selection
 
 ### XSS Protection
+
 User input is sanitized before being inserted into the DOM via `escHtml()`:
 
 ```js
 function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
-          .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 ```
 
